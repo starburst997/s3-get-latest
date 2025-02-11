@@ -51,6 +51,7 @@ runs:
 
     - name: List folders
       id: output
+      continue-on-error: true
       shell: bash
       run: |
         aws s3 ls s3://${{ inputs.bucket }}/${{ inputs.src-dir }}/ | awk '{print $2}' > ls.txt
