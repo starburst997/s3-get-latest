@@ -1,0 +1,68 @@
+name: 'S3 Get Latest'
+description: 'Download all the files from the latest version folder in S3'
+author: 'Jean-Denis Boivin'
+
+outputs:
+  version:
+    value: steps.output.outputs.version
+inputs:
+  key-id:
+    description: 'Your S3 Key ID'
+    required: true
+  secret-access-key:
+    description: 'Your S3 Secret Access Key'
+    required: true
+  bucket:
+    description: 'Your S3 Bucket'
+    required: true
+  region:
+    description: 'S3 Region'
+    default: 'us-east-1'
+    required: false
+  endpoint:
+    description: 'Needed if you use a clone (ex; DigitalOcean Space)'
+    required: false
+
+  dst-dir:
+    description: 'Destination directory to download files to'
+    required: true
+  src-dir:
+    description: 'Source directory in S3 that contains folders named after version'
+    required: true
+  release:
+    description: 'Only allow version that match the release number ex; 2025.X.12'
+    default: ''
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Display message
+      shell: bash
+      run: echo "S3 Get Latest..."
+
+    - name: Set envs
+      shell: bash
+      run: |
+        echo "AWS_ACCESS_KEY_ID=${{ inputs.key-id }}" >> $GITHUB_ENV
+        echo "AWS_SECRET_ACCESS_KEY=${{ inputs.secret-access-key }}" >> $GITHUB_ENV
+        echo "AWS_DEFAULT_REGION=${{ inputs.region }}" >> $GITHUB_ENV
+        echo "AWS_ENDPOINT_URL=${{ inputs.endpoint }}" >> $GITHUB_ENV
+
+    - name: List folders
+      id: output
+      shell: bash
+      run: |
+        aws s3 ls s3://${{ inputs.bucket }}/${{ inputs.src-dir }}/ | awk '{print $2}' > ls.txt
+        sort -V ls.txt > ls-sort.txt
+        echo version=${$(tail -n -1 ls-sort.txt)%?} >> $GITHUB_OUTPUT
+        echo Latest version is ${{ steps.output.outputs.version }}
+
+    # TODO: Skip if version doesn't match release number 
+
+    - name: Download from S3
+      shell: bash
+      run: |
+        mkdir ${{ inputs.dst-dir }}
+        aws s3 cp s3://${{ inputs.bucket }}/${{ inputs.src-dir }}/${{ steps.output.outputs.version }}/ ${{ inputs.dst-dir }} --recursive
+        ls -la ${{ inputs.dst-dir }}

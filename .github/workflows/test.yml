@@ -1,0 +1,40 @@
+name: Test
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  # This requires that you add `GH_PAT` to the secrets of your repository
+  # Which is a Personal Access Token (PAT) for Github with all repo access
+  version:
+    uses: starburst997/yearly-version/.github/workflows/version.yml@v1
+    secrets: inherit
+    with:
+      increment: false
+      build-var: BUILD_NUMBER
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: [version]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all files in the latest version folder
+        uses: starburst997/s3-get-latest@v1
+        id: latest
+        with:
+          key-id: ${{ secrets.S3_KEY_ID }}
+          secret-access-key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          region: ${{ secrets.S3_REGION }}
+          endpoint: ${{ secrets.S3_ENDPOINT }}
+          bucket: ${{ secrets.S3_BUCKET }}
+
+          dst-dir: 'windows'
+          src-dir: 'apps/unity-test/internal/windows-mono'
+          #release: '1'
+
+      - name: Debug
+        run: |
+          ls -la windows
+          echo ${{ steps.latest.outputs.version }}
