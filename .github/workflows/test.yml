@@ -12,7 +12,7 @@ jobs:
 
       - name: Download all files in the latest version folder
         uses: starburst997/s3-get-latest@v1
-        id: latest
+        id: windows
         with:
           key-id: ${{ secrets.S3_KEY_ID }}
           secret-access-key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
@@ -24,7 +24,25 @@ jobs:
           src-dir: 'apps/unity-test/internal/windows-mono'
           #release: '1'
 
+      - name: Download all files in the latest version folder
+        uses: starburst997/s3-get-latest@v1
+        id: macos
+        with:
+          key-id: ${{ secrets.S3_KEY_ID }}
+          secret-access-key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          region: ${{ secrets.S3_REGION }}
+          endpoint: ${{ secrets.S3_ENDPOINT }}
+          bucket: ${{ secrets.S3_BUCKET }}
+
+          dst-dir: 'macos'
+          src-dir: 'apps/unity-test/internal/macos'
+
       - name: Debug
         run: |
           ls -la windows
-          echo Version: ${{ steps.latest.outputs.version }}
+          echo Version: ${{ steps.windows.outputs.version }}
+          
+      - name: Debug 2
+        run: |
+          ls -la .
+          echo Version: ${{ steps.macos.outputs.version }}
