@@ -27,4 +27,4 @@ jobs:
       - name: Debug
         run: |
           ls -la windows
-          echo ${{ steps.latest.outputs.version }}
+          echo Version: ${{ steps.latest.outputs.version }}

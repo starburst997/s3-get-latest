@@ -4,7 +4,7 @@ author: 'Jean-Denis Boivin'
 
 outputs:
   version:
-    value: steps.output.outputs.version
+    value: ${{ steps.output.outputs.version }}
 inputs:
   key-id:
     description: 'Your S3 Key ID'
@@ -57,7 +57,7 @@ runs:
         sort -V ls.txt > ls-sort.txt
         VERSION=$(tail -n -1 ls-sort.txt)
         echo version=${VERSION%?} >> $GITHUB_OUTPUT
-        echo Latest version is ${{ steps.output.outputs.version }}
+    - run: echo Latest version is ${{ steps.output.outputs.version }}
 
     # TODO: Skip if version doesn't match release number 
 
