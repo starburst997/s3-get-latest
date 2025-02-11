@@ -58,10 +58,11 @@ runs:
         sort -V ls.txt > ls-sort.txt
         VERSION=$(tail -n -1 ls-sort.txt)
         echo version=${VERSION%?} >> $GITHUB_OUTPUT
-        rm ls.txt
-        rm ls-sort.txt
     - shell: bash
-      run: echo Latest version is ${{ steps.output.outputs.version }}
+      run: |
+        echo Latest version is ${{ steps.output.outputs.version }}
+        rm -f ls.txt
+        rm -f ls-sort.txt
 
     # TODO: Skip if version doesn't match release number 
 
