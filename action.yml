@@ -57,14 +57,18 @@ runs:
         sort -V ls.txt > ls-sort.txt
         VERSION=$(tail -n -1 ls-sort.txt)
         echo version=${VERSION%?} >> $GITHUB_OUTPUT
+        rm ls.txt
+        rm ls-sort.txt
     - shell: bash
       run: echo Latest version is ${{ steps.output.outputs.version }}
 
     # TODO: Skip if version doesn't match release number 
 
     - name: Download from S3
+      if: ${{ steps.output.outputs.version != '' }}
       shell: bash
       run: |
+        echo "Version found"
         mkdir ${{ inputs.dst-dir }}
         aws s3 cp s3://${{ inputs.bucket }}/${{ inputs.src-dir }}/${{ steps.output.outputs.version }}/ ${{ inputs.dst-dir }} --recursive
         ls -la ${{ inputs.dst-dir }}
