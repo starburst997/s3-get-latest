@@ -49,6 +49,21 @@ runs:
         echo "AWS_DEFAULT_REGION=${{ inputs.region }}" >> $GITHUB_ENV
         echo "AWS_ENDPOINT_URL=${{ inputs.endpoint }}" >> $GITHUB_ENV
 
+    # Force specific version of aws cli since v2 add "aws-chunked" to content-encoding...
+    # Weirdly enough, couldn't find a way to disable this feature, also not much info online
+    # This breaks brotli content-encoding for unity (all files?) since it becomes "br,aws-chunked" instead of "br"
+    # Maybe this is an issue with DigitalOcean Space only?
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+    - name: Install aws cli v1
+      shell: bash
+      run: pip install --force-reinstall -v "awscli==1.33.24"
+
+    - name: Verify aws cli version
+      shell: bash
+      run: aws --version
+
     - name: List folders
       id: output
       continue-on-error: true
