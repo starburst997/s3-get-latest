@@ -55,7 +55,8 @@ runs:
       run: |
         aws s3 ls s3://${{ inputs.bucket }}/${{ inputs.src-dir }}/ | awk '{print $2}' > ls.txt
         sort -V ls.txt > ls-sort.txt
-        echo version=${$(tail -n -1 ls-sort.txt)%?} >> $GITHUB_OUTPUT
+        VERSION=$(tail -n -1 ls-sort.txt)
+        echo version=${VERSION%?} >> $GITHUB_OUTPUT
         echo Latest version is ${{ steps.output.outputs.version }}
 
     # TODO: Skip if version doesn't match release number 
